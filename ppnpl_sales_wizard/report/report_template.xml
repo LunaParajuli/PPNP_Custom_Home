@@ -17,14 +17,18 @@
                                 <th class="text-center">Product Image</th>
                                 <th>Product Name</th>
                                 <th class="text-end">Qty</th>
-                                <th class="text-end">Rate</th>
+                                <th class="text-end">Rate(Rs)</th>
                                 <th class="text-center">Tax</th>
-                                <th class="text-end">Total</th>
+                                <th class="text-end">Total(Rs)</th>
                             </tr>
                         </thead>
                         <tbody>
+                            <t t-set="grand_total" t-value="0"/>
+                            
                             <t t-foreach="docs" t-as="line">
                                 <tr>
+                                    <t t-set="grand_total" t-value="grand_total + line.price_total"/>
+                                    
                                     <td class="text-center"><t t-esc="line_index + 1"/></td>
                                     <td class="text-center">
                                         <span t-if="line.product_id.image_128"
@@ -35,18 +39,37 @@
                                     <td class="text-end"><span t-field="line.product_uom_qty"/></td>
                                     <td class="text-end">
                                         <span t-field="line.price_unit"
-                                              t-options='{"widget": "monetary", "display_currency": line.currency_id}'/>
+                                             />
+                                              <!-- t-options='{"widget": "monetary", "display_currency": line.currency_id}' -->
                                     </td>
                                     <td class="text-center">
                                         <span t-esc="', '.join(map(lambda x: x.name, line.tax_ids))"/>
                                     </td>
                                     <td class="text-end">
                                         <span t-field="line.price_total"/>
+                                              <!-- t-options='{"widget": "monetary", "display_currency": line.currency_id}' -->
                                     </td>
                                 </tr>
                             </t>
                         </tbody>
+                        
+                        <tfoot style="border-top: 2px solid black;">
+                            <tr>
+                                <td colspan="6" class="text-end"><strong>Grand Total(Rs)</strong></td>
+                                <td class="text-end">
+                                    <strong t-esc="grand_total"  />
+                                      <!-- t-options='{"widget": "monetary", "display_currency": docs[0].currency_id if docs else res_company.currency_id}' -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td colspan="7" class="text-start">
+                                    <strong>Amount in Words: </strong>
+                                    <span class="text-capitalize" t-esc="docs[0].currency_id.amount_to_text(grand_total) if docs else ''"/>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
+
                     <div class="mt-4 text-muted small">
                         <p><strong>Generated on: </strong> <span t-esc="context_timestamp(datetime.datetime.now()).strftime('%Y-%m-%d %H:%M:%S')"/></p>
                     </div>
